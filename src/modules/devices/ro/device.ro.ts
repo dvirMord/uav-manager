@@ -11,3 +11,10 @@ export interface ChannelRo {
     kafkaTopic?: string;
     kafkaPartition?: number;
 }
+
+export interface DeviceRo {
+    id: string;
+    name: string;
+    state: DeviceState;
+    channels: ChannelRo[];
+}
