@@ -1,0 +1,42 @@
+[
+    {
+        "id": "uav-cheyenne-01",
+        "name": "Cheyenne Recon",
+        "state": "ACTIVE",
+        "channels": [
+            {
+                "id": "cheyenne-video",
+                "type": "MULTIMEDIA",
+                "state": "ACTIVE",
+                "sourceUrl": "rtsp://localhost:8554/live/cheyenne.ts"
+            },
+            {
+                "id": "cheyenne-telemetry",
+                "type": "TELEMETRY",
+                "state": "ACTIVE",
+                "kafkaTopic": "telemetry-stream",
+                "kafkaPartition": 0
+            }
+        ]
+    },
+    {
+        "id": "uav-truck-01",
+        "name": "Truck Tracking UAV",
+        "state": "ACTIVE",
+        "channels": [
+            {
+                "id": "ch-truck-video",
+                "type": "MULTIMEDIA",
+                "state": "ACTIVE",
+                "sourceUrl": "rtsp://localhost:8554/live/truck"
+            },
+            {
+                "id": "ch-truck-telemetry",
+                "type": "TELEMETRY",
+                "state": "ACTIVE",
+                "kafkaTopic": "telemetry-stream",
+                "kafkaPartition": 1
+            }
+        ]
+    }
+]
