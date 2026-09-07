@@ -1,9 +1,10 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/common";
 import { DevicesStore } from "./devices.store";
 import * as path from 'path';
 import * as fs from 'fs';
-import { CONFIG_DIRECTORY_NAME, DEVICES_CONFIG_FILE_NAME, FILE_ENCODING_UTF8, DEVICES_LOG_MESSAGES } from "../../common/constants/devices.constants";
+import { CONFIG_DIRECTORY_NAME, DEVICES_CONFIG_FILE_NAME, FILE_ENCODING_UTF8, DEVICES_LOG_MESSAGES, DEVICES_ERROR_MESSAGES } from "../../common/constants/devices.constants";
 import { DeviceConfig } from "./dto/device-config.dto";
+import { DeviceRo } from "./ro/device.ro";
 
 @Injectable()
 export class DevicesService implements OnModuleInit {
@@ -13,6 +14,19 @@ export class DevicesService implements OnModuleInit {
 
     public async onModuleInit(): Promise<void> {
         this.loadDevicesConfiguration();
+    }
+
+    // for endpoints
+    public getAll(): DeviceRo[] {
+        return this.devicesStore.getAll();
+    }
+
+    public getById(deviceId: string): DeviceRo | undefined {
+        const device = this.devicesStore.getById(deviceId);
+        if (!device) {
+            throw new NotFoundException(DEVICES_ERROR_MESSAGES.NOT_FOUND(deviceId));
+        }
+        return device;
     }
 
     private loadDevicesConfiguration(): void {
