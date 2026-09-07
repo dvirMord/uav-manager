@@ -31,3 +31,18 @@ export const SWAGGER_CONFIG = {
 export const APP_LOG_MESSAGES = {
     BOOTSTRAP_ERROR: 'Fatal error during bootstrap:',
 } as const;
+
+export const CHANNEL_TYPES = {
+    MULTIMEDIA: 'multimedia',
+} as const;
+
+export const GENERATE_STREAM_NAME = (deviceId: string, channelId: string): string =>
+    `${deviceId}_${channelId}`;
+
+// Add these to your existing DEVICES_LOG_MESSAGES object:
+export const DEVICES_STREAM_LOG_MESSAGES = {
+    STREAM_INIT_SUCCESS: (deviceId: string, channelId: string, playbackUrl: string) =>
+        `Successfully initialized stream for device '${deviceId}', channel '${channelId}': ${playbackUrl}`,
+    STREAM_INIT_FAILED: (deviceId: string, channelId: string) =>
+        `Failed to initialize stream for device '${deviceId}', channel '${channelId}'`,
+} as const;

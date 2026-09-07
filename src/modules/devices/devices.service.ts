@@ -17,9 +17,10 @@ export class DevicesService implements OnModuleInit {
 
     public async onModuleInit(): Promise<void> {
         this.loadDevicesConfiguration();
+        await this.initializeMultimediaStreams();
     }
 
-    // for endpoints
+    //============for endpoints==========================
     public getAll(): DeviceRo[] {
         return this.devicesStore.getAll();
     }
@@ -31,6 +32,7 @@ export class DevicesService implements OnModuleInit {
         }
         return device;
     }
+    //====================================================
 
     private mapChannel(rawChannel: ChannelConfig) {
         switch (rawChannel.type) {
@@ -71,6 +73,7 @@ export class DevicesService implements OnModuleInit {
                     this.mapChannel(rawChannel)
                 ),
             }));
+
             this.devicesStore.saveAll(devices);
             this.logger.log(DEVICES_LOG_MESSAGES.LOAD_SUCCESS(devices.length, configPath), DevicesService.name);
         }
@@ -81,5 +84,49 @@ export class DevicesService implements OnModuleInit {
                 DevicesService.name,
             );
         }
+    }
+
+
+    //Iterates over all loaded devices and starts ingestion for multimedia channels.
+    private async initializeMultimediaStreams(): Promise<void> {
+        const devices = this.devicesStore.getAll();
+
+        for (const device of devices) {
+            if (!device.channels || !Array.isArray(device.channels)) {
+                continue;
+            }
+
+            for (const channel of device.channels) {
+                if (channel.type === ChannelType.MULTIMEDIA && channel.sourceUrl) {
+                    const streamName = GENERATE_STREAM_NAME(device.id, channel.id);
+
+                    try {
+                        const playbackUrl = await this.mediaServerService.startStream({
+                            streamName,
+                            sourceUrl: channel.sourceUrl,
+                        });
+
+                        // Assign generated playback URL to the channel instance
+                        channel.playbackUrl = playbackUrl;
+
+                        this.logger.log(
+                            DEVICES_STREAM_LOG_MESSAGES.STREAM_INIT_SUCCESS(
+                                device.id,
+                                channel.id,
+                                playbackUrl,
+                            ),
+                        );
+                    } catch (error) {
+                        this.logger.error(
+                            DEVICES_STREAM_LOG_MESSAGES.STREAM_INIT_FAILED(device.id, channel.id),
+                            error,
+                        );
+                    }
+                }
+            }
+        }
+
+        // Persist updated playback URLs back to the store
+        this.devicesStore.saveAll(devices);
     }
 }
