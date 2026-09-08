@@ -8,7 +8,7 @@
                 "id": "cheyenne-video",
                 "type": "MULTIMEDIA",
                 "state": "ACTIVE",
-                "sourceUrl": "rtsp://localhost:8554/live/cheyenne.ts"
+                "sourceUrl": "rtsp://172.20.0.2:8554/Cheyenne.ts"
             },
             {
                 "id": "cheyenne-telemetry",
@@ -28,7 +28,7 @@
                 "id": "truck-video",
                 "type": "MULTIMEDIA",
                 "state": "ACTIVE",
-                "sourceUrl": "rtsp://localhost:8554/live/truck.ts"
+                "sourceUrl": "rtsp://172.20.0.2:8554/truck.ts"
             },
             {
                 "id": "truck-telemetry",
