@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { DevicesStore } from "./devices.store";
 import * as path from 'path';
 import * as fs from 'fs';
@@ -9,7 +9,7 @@ import { ChannelType } from "../../common/enums/channel-type.enum";
 import { MediaServerService } from "../media-server/media-server.service";
 
 @Injectable()
-export class DevicesService implements OnModuleInit {
+export class DevicesService implements OnModuleInit, OnModuleDestroy {
 
     public constructor(
         private readonly devicesStore: DevicesStore,
@@ -20,6 +20,10 @@ export class DevicesService implements OnModuleInit {
     public async onModuleInit(): Promise<void> {
         this.loadDevicesConfiguration();
         await this.initializeMultimediaStreams();
+    }
+
+    public async onModuleDestroy(): Promise<void> {
+        await this.cleanupMultimediaIncomingStreams();
     }
 
     //============for endpoints==========================
@@ -88,7 +92,6 @@ export class DevicesService implements OnModuleInit {
         }
     }
 
-
     //Iterates over all loaded devices and starts ingestion for multimedia channels.
     private async initializeMultimediaStreams(): Promise<void> {
         const devices = this.devicesStore.getAll();
@@ -130,5 +133,31 @@ export class DevicesService implements OnModuleInit {
 
         // Persist updated playback URLs back to the store
         this.devicesStore.saveAll(devices);
+    }
+
+    private async cleanupMultimediaIncomingStreams(): Promise<void> {
+        this.logger.log(DEVICES_LOG_MESSAGES.CLEANUP_START, DevicesService.name);
+
+        const devices = this.devicesStore.getAll();
+        try {
+            for (const device of devices) {
+                if (!device.channels || !Array.isArray(device.channels)) {
+                    continue;
+                }
+
+                for (const channel of device.channels) {
+                    if (channel.type === ChannelType.MULTIMEDIA && channel.sourceUrl) {
+                        await this.mediaServerService.stopStream(GENERATE_STREAM_NAME(device.id, channel.id));
+                    }
+                }
+            }
+            this.logger.log(DEVICES_LOG_MESSAGES.CLEANUP_SUCCESS, DevicesService.name);
+        }
+        catch (error) {
+            this.logger.error(
+                DEVICES_LOG_MESSAGES.CLEANUP_FAILED(error instanceof Error ? error.stack : String(error)),
+                DevicesService.name,
+            );
+        }
     }
 }

@@ -61,6 +61,9 @@ export const WOWZA_LOG_MESSAGES = {
 
     WARN_DISCONNECT_FAILED: (streamName: string, error: string) =>
         `Failed to disconnect stream '${streamName}': ${error}`,
+
+    WARN_DELETE_FAILED: (streamFileName: string, error: string) =>
+        `Failed to delete stream file '${streamFileName}': ${error}`,
 } as const;
 
 export const WOWZA_ERROR_MESSAGES = {

@@ -10,6 +10,10 @@ export const DEVICES_LOG_MESSAGES = {
         `Loaded ${count} devices from configuration file: ${filePath}`,
     LOAD_FAILED: (filePath: string) =>
         `Failed to load devices configuration from file: ${filePath}`,
+    CLEANUP_START: 'Starting cleanup of multimedia incoming streams...',
+    CLEANUP_SUCCESS: 'Cleanup of multimedia incoming streams completed successfully.',
+    CLEANUP_FAILED: (error: string) =>
+        `Failed to cleanup multimedia incoming streams: ${error}`,
 } as const;
 
 export const DEVICES_ERROR_MESSAGES = {
