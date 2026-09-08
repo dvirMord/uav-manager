@@ -3,14 +3,17 @@ import { DevicesStore } from "./devices.store";
 import * as path from 'path';
 import * as fs from 'fs';
 import { CONFIG_DIRECTORY_NAME, DEVICES_CONFIG_FILE_NAME, FILE_ENCODING_UTF8, DEVICES_LOG_MESSAGES, DEVICES_ERROR_MESSAGES } from "../../common/constants/devices.constants";
-import { DeviceConfig } from "./dto/device-config.dto";
+import { ChannelConfig, DeviceConfig } from "./dto/device-config.dto";
 import { DeviceRo } from "./ro/device.ro";
+import { ChannelType } from "../../common/enums/channel-type.enum";
 
 @Injectable()
 export class DevicesService implements OnModuleInit {
-    private readonly logger = new Logger(DevicesService.name);
 
-    public constructor(private readonly devicesStore: DevicesStore) { }
+    public constructor(
+        private readonly devicesStore: DevicesStore,
+        private readonly logger: Logger,
+    ) { }
 
     public async onModuleInit(): Promise<void> {
         this.loadDevicesConfiguration();
@@ -29,33 +32,54 @@ export class DevicesService implements OnModuleInit {
         return device;
     }
 
+    private mapChannel(rawChannel: ChannelConfig) {
+        switch (rawChannel.type) {
+            case ChannelType.MULTIMEDIA:
+                return {
+                    id: rawChannel.id,
+                    type: rawChannel.type,
+                    state: rawChannel.state,
+                    sourceUrl: rawChannel.sourceUrl,
+                    playbackUrl: undefined,
+                }
+            case ChannelType.TELEMETRY:
+                return {
+                    id: rawChannel.id,
+                    type: rawChannel.type,
+                    state: rawChannel.state,
+                    kafkaTopic: rawChannel.kafkaTopic,
+                    kafkaPartition: rawChannel.kafkaPartition,
+                }
+            default:
+                this.logger.log("Undefind channel type", DevicesService.name);
+        }
+    }
+
     private loadDevicesConfiguration(): void {
         const configPath = path.resolve(process.cwd(), CONFIG_DIRECTORY_NAME, DEVICES_CONFIG_FILE_NAME);
 
         try {
             const filedata = fs.readFileSync(configPath, FILE_ENCODING_UTF8);
 
-            const rawdevices: DeviceConfig[] = JSON.parse(filedata);
+            const rawDevices: DeviceConfig[] = JSON.parse(filedata);
 
-            const devices = rawdevices.map((rawdevice) => ({
-                id: rawdevice.id,
-                name: rawdevice.name,
-                state: rawdevice.state,
-                channels: rawdevice.channels.map((rawchannel) => ({
-                    id: rawchannel.id,
-                    type: rawchannel.type,
-                    state: rawchannel.state,
-                    sourceUrl: rawchannel.sourceUrl,
-                    kafkaTopic: rawchannel.kafkaTopic,
-                    kafkaPartition: rawchannel.kafkaPartition,
-                    playbackUrl: undefined,
-                })),
+            const devices = rawDevices.map((rawDevice) => ({
+                id: rawDevice.id,
+                name: rawDevice.name,
+                state: rawDevice.state,
+                channels: rawDevice.channels.map((rawChannel) =>
+                    this.mapChannel(rawChannel)
+                ),
             }));
             this.devicesStore.saveAll(devices);
-            this.logger.log(DEVICES_LOG_MESSAGES.LOAD_SUCCESS(devices.length, configPath));
+            this.logger.log(DEVICES_LOG_MESSAGES.LOAD_SUCCESS(devices.length, configPath), DevicesService.name);
         }
         catch (error) {
-            this.logger.error(DEVICES_LOG_MESSAGES.LOAD_FAILED(configPath), error);
+            this.logger.error(
+                DEVICES_LOG_MESSAGES.LOAD_FAILED(configPath),
+                error instanceof Error ? error.stack : String(error),
+                DevicesService.name,
+            );
         }
     }
 }

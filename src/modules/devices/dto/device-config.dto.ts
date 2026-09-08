@@ -1,15 +1,23 @@
 import { DeviceState } from '../../../common/enums/device-state.enum';
 import { ChannelType } from '../../../common/enums/channel-type.enum';
 
-export interface ChannelConfig {
+export abstract class IChannelConfig {
     id: string;
-    type: ChannelType;
+    abstract type: ChannelType;
     state: DeviceState;
-    sourceUrl?: string;
-    kafkaTopic?: string;
-    kafkaPartition?: number;
 }
 
+export class MultimediaChannelConfig extends IChannelConfig {
+    type: ChannelType.MULTIMEDIA;
+    sourceUrl: string;
+}
+
+export class TelemetryChannelConfig extends IChannelConfig {
+    type: ChannelType.TELEMETRY;
+    kafkaTopic: string;
+    kafkaPartition: number;
+}
+export type ChannelConfig = MultimediaChannelConfig | TelemetryChannelConfig;
 export interface DeviceConfig {
     id: string;
     name: string;
