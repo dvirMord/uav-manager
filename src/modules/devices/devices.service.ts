@@ -2,10 +2,11 @@ import { Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/com
 import { DevicesStore } from "./devices.store";
 import * as path from 'path';
 import * as fs from 'fs';
-import { CONFIG_DIRECTORY_NAME, DEVICES_CONFIG_FILE_NAME, FILE_ENCODING_UTF8, DEVICES_LOG_MESSAGES, DEVICES_ERROR_MESSAGES } from "../../common/constants/devices.constants";
+import { CONFIG_DIRECTORY_NAME, DEVICES_CONFIG_FILE_NAME, FILE_ENCODING_UTF8, DEVICES_LOG_MESSAGES, DEVICES_ERROR_MESSAGES, DEVICES_STREAM_LOG_MESSAGES, GENERATE_STREAM_NAME } from "../../common/constants/devices.constants";
 import { ChannelConfig, DeviceConfig } from "./dto/device-config.dto";
 import { DeviceRo } from "./ro/device.ro";
 import { ChannelType } from "../../common/enums/channel-type.enum";
+import { MediaServerService } from "../media-server/media-server.service";
 
 @Injectable()
 export class DevicesService implements OnModuleInit {
@@ -13,6 +14,7 @@ export class DevicesService implements OnModuleInit {
     public constructor(
         private readonly devicesStore: DevicesStore,
         private readonly logger: Logger,
+        private readonly mediaServerService: MediaServerService,
     ) { }
 
     public async onModuleInit(): Promise<void> {

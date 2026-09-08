@@ -144,7 +144,7 @@ export class WowzaMediaServerService extends MediaServerService {
             WOWZA_DEFAULTS.PASSWORD,
         );
 
-        const url = `http://${host}:${restPort}${endpointPath}`;
+        const url = WOWZA_ENDPOINTS.REST_URL(host, restPort, endpointPath);
         const encodedAuth = Buffer.from(`${username}:${password}`).toString('base64');
         const authHeader = `${WOWZA_HTTP_HEADERS.BASIC_PREFIX}${encodedAuth}`;
 

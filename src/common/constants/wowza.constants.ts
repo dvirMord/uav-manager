@@ -49,12 +49,16 @@ export const WOWZA_QUERY_PARAMS = {
 export const WOWZA_LOG_MESSAGES = {
     STARTING_STREAM: (streamName: string, sourceUrl: string) =>
         `Starting stream '${streamName}' from source: ${sourceUrl}`,
+
     STREAM_LIVE: (streamName: string, playbackUrl: string) =>
         `Stream '${streamName}' is live at: ${playbackUrl}`,
+
     STOPPING_STREAM: (streamName: string) =>
         `Stopping incoming stream '${streamName}'`,
+
     WARN_CREATE_FAILED: (streamName: string, error: string) =>
         `Could not create stream file '${streamName}': ${error}`,
+
     WARN_DISCONNECT_FAILED: (streamName: string, error: string) =>
         `Failed to disconnect stream '${streamName}': ${error}`,
 } as const;
@@ -113,4 +117,14 @@ export const WOWZA_ENDPOINTS = {
         appName: string = WOWZA_DEFAULTS.APP_NAME,
     ) =>
         `http://${host}:${port}/${appName}/${streamName}/${WOWZA_STREAM_EXTENSIONS.HLS_PLAYLIST_FILE}`,
-};
+
+    /**
+     * Generates the Wowza REST API URL.
+     */
+    REST_URL: (
+        host: string,
+        port: number,
+        endpointPath: string,
+    ) =>
+        `http://${host}:${port}${endpointPath}`,
+} as const;
