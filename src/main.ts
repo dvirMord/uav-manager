@@ -19,7 +19,7 @@ async function bootstrap(): Promise<void> {
 
     const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup(SWAGGER_CONFIG.PATH, app, swaggerDocument);
-
+    app.enableShutdownHooks(); // for OnModuleDestroy
     await app.listen(DEFAULT_APP_PORT);
 }
 
