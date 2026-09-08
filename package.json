@@ -1,0 +1,27 @@
+{
+    "name": "uav-manager",
+    "version": "0.0.1",
+    "description": "UAV Manager service for RAVEN",
+    "private": true,
+    "scripts": {
+        "build": "nest build",
+        "start": "nest start",
+        "start:dev": "nest start --watch",
+        "start:prod": "node dist/main"
+    },
+    "dependencies": {
+        "@nestjs/common": "^10.0.0",
+        "@nestjs/core": "^10.0.0",
+        "@nestjs/platform-express": "^10.0.0",
+        "@nestjs/swagger": "^7.4.2",
+        "reflect-metadata": "^0.2.0",
+        "rxjs": "^7.8.1",
+        "swagger-ui-express": "^5.0.1"
+    },
+    "devDependencies": {
+        "@nestjs/cli": "^12.0.0",
+        "@nestjs/schematics": "^10.0.0",
+        "@types/node": "^20.3.1",
+        "typescript": "^5.1.3"
+    }
+}
